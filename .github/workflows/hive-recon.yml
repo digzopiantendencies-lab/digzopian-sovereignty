@@ -29,22 +29,26 @@ jobs:
           pip install requests psycopg2-binary pyodbc # Add any other dependencies your Binarology logic needs
           
       - name: Execute Vortex A (Recon Scraper)
+        shell: bash
         run: |
           echo "Initiating Vortex A: Scraping public CVEs and bounty scopes..."
-          # python3 scripts/vortex_scraper.py
+          python scripts/vortex_scraper.py
           
       - name: Execute Vortex B (Pattern Analyst)
+        shell: bash
         run: |
           echo "Initiating Vortex B: Applying Binarology logic to identify Go-ers..."
-          # python3 scripts/pattern_analyst.py
+          python scripts/pattern_analyst.py
 
       - name: Deploy Vortex C (Offensive Bastion Sandbox)
+        shell: bash
         run: |
           echo "Initiating Vortex C: Generating The Cure..."
           # docker run --rm -v ${{ github.workspace }}:/workspace kali_bastion python3 /workspace/scripts/sandbox_sim.py
 
       - name: Notify Discord Bridge
         if: always()
+        shell: bash
         run: |
           STATUS="${{ job.status }}"
           if [ "$STATUS" = "success" ]; then
