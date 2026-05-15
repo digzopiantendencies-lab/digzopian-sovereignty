@@ -1,0 +1,47 @@
+{
+	"folders": [
+		{
+			"path": "database"
+		}
+	],
+	"settings": {
+		"sqltools.connections": [
+			{
+				"name": "Digzopian Sovereignty - PostgreSQL",
+				"driver": "PostgreSQL",
+				"server": "localhost",
+				"port": 5432,
+				"database": "digzopian_sovereignty",
+				"username": "postgres",
+				"askForPassword": true,
+				"connectionTimeout": 15,
+				"ssl": false
+			},
+			{
+				"name": "Digzopian Sovereignty - PostgreSQL (Cloud)",
+				"driver": "PostgreSQL",
+				"server": "<your-cloud-host>.postgres.database.azure.com",
+				"port": 5432,
+				"database": "digzopian_sovereignty",
+				"username": "<your-cloud-username>",
+				"askForPassword": true,
+				"connectionTimeout": 15,
+				"ssl": true
+			}
+		],
+		"sqltools.format": {
+			"linesBetweenQueries": 2,
+			"uppercaseKeywords": true
+		},
+		"sqltools.suggestSnippets": true,
+		"sqltools.showSystemObjects": true,
+		"sqltools.workspace": "digzopian-sovereignty"
+	},
+	"extensions": {
+		"recommendations": [
+			"mtxr.sqltools",
+			"mtxr.sqltools-driver-pg",
+			"ms-python.vscode-python-envs"
+		]
+	}
+}

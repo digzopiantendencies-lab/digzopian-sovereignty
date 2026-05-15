@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  akashic-db:
+    image: postgres:15-alpine
+    volumes:
+      - ./internal_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+
+  hive-orchestrator:
+    image: ubuntu:latest
+    environment:
+      - DISCORD_WEBHOOK=${DISCORD_WEBHOOK_URL}
+      - INTERRUPT_CODE=HELL NO YOU DONT
+    volumes:
+      - ./scripts:/app/scripts
+    command: python3 /app/scripts/antigravity_watchdog.py

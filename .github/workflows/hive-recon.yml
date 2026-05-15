@@ -1,0 +1,58 @@
+name: Digzopian Hive Recon
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+  workflow_dispatch: # Allows manual trigger from GitHub UI or Discord via webhook if configured
+
+jobs:
+  swarm_recon:
+    name: Hive Vortices Swarm Execution
+    runs-on: self-hosted # Targets your Lenovo Yoga 9 self-hosted runner
+    
+    env:
+      AZURE_SQL_CONN: ${{ secrets.AZURE_SQL_CONN }}
+      NEON_DB_URL: ${{ secrets.NEON_DB_URL }}
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+
+    steps:
+      - name: Checkout Hive Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          pip install requests psycopg2-binary pyodbc # Add any other dependencies your Binarology logic needs
+          
+      - name: Execute Vortex A (Recon Scraper)
+        run: |
+          echo "Initiating Vortex A: Scraping public CVEs and bounty scopes..."
+          # python3 scripts/vortex_scraper.py
+          
+      - name: Execute Vortex B (Pattern Analyst)
+        run: |
+          echo "Initiating Vortex B: Applying Binarology logic to identify Go-ers..."
+          # python3 scripts/pattern_analyst.py
+
+      - name: Deploy Vortex C (Offensive Bastion Sandbox)
+        run: |
+          echo "Initiating Vortex C: Generating The Cure..."
+          # docker run --rm -v ${{ github.workspace }}:/workspace kali_bastion python3 /workspace/scripts/sandbox_sim.py
+
+      - name: Notify Discord Bridge
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          if [ "$STATUS" = "success" ]; then
+            MSG="✅ **Sovereign Gate Operational**: Daily Hive Recon and Analysis Complete. Check your logs for Go-ers."
+          else
+            MSG="⚠️ **Hive Alert**: Swarm sequence failed or was interrupted. Check logs immediately."
+          fi
+          
+          curl -H "Content-Type: application/json" \
+          -d "{\"content\": \"$MSG\"}" \
+          $DISCORD_WEBHOOK
