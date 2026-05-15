@@ -17,29 +17,35 @@ jobs:
     steps:
       - name: Checkout Hive Repository
         uses: actions/checkout@v4
+        shell: powershell
 
       - name: Setup Python environment
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+        shell: powershell
 
       - name: Install dependencies
         run: pip install requests
+        shell: powershell
 
       - name: Execute Vortex A (Recon Scraper)
         run: |
           Write-Host "Initiating Vortex A: Scraping public CVEs and bounty scopes..."
           python scripts/vortex_scraper.py
+        shell: powershell
 
       - name: Execute Vortex B (Pattern Analyst)
         run: |
           Write-Host "Initiating Vortex B: Applying Binarology logic to identify Go-ers..."
           python scripts/pattern_analyst.py
+        shell: powershell
 
       - name: Deploy Vortex C (Bastion Sandbox)
         run: |
           Write-Host "Initiating Vortex C: Generating The Cure..."
           python scripts/sandbox_sim.py
+        shell: powershell
 
       - name: Notify Discord Bridge
         if: always()
@@ -55,3 +61,4 @@ jobs:
           $payload = @{ content = $msg } | ConvertTo-Json
           Invoke-RestMethod -Uri $webhook -Method POST -Headers @{ 'Content-Type' = 'application/json' } -Body $payload
           Write-Host "Discord notified."
+        shell: powershell
