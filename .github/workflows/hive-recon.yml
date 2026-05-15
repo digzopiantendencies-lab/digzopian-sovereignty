@@ -2,18 +2,13 @@ name: Digzopian Hive Recon
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Daily at midnight UTC
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   swarm_recon:
     name: Hive Vortices Swarm Execution
     runs-on: self-hosted
-    
-    env:
-      AZURE_SQL_CONN: ${{ secrets.AZURE_SQL_CONN }}
-      NEON_DB_URL: ${{ secrets.NEON_DB_URL }}
-      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
 
     defaults:
       run:
@@ -22,20 +17,20 @@ jobs:
     steps:
       - name: Checkout Hive Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Python environment
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          
+
       - name: Install dependencies
         run: pip install requests
-          
+
       - name: Execute Vortex A (Recon Scraper)
         run: |
           Write-Host "Initiating Vortex A: Scraping public CVEs and bounty scopes..."
           python scripts/vortex_scraper.py
-          
+
       - name: Execute Vortex B (Pattern Analyst)
         run: |
           Write-Host "Initiating Vortex B: Applying Binarology logic to identify Go-ers..."
@@ -50,16 +45,13 @@ jobs:
         if: always()
         continue-on-error: true
         run: |
-          $status = "${{ job.status }}"
           $webhook = "${{ secrets.DISCORD_WEBHOOK }}"
-          python -c "
-          import urllib.request, json, sys
-          status = sys.argv[1]
-          webhook = sys.argv[2]
-          msg = '[SWARM OK] Digzopian Hive Recon complete.' if status == 'success' else '[SWARM ALERT] Hive sequence had an issue. Check GitHub Actions.'
-          data = json.dumps({'content': msg}).encode()
-          req = urllib.request.Request(webhook, data=data, headers={'Content-Type': 'application/json'})
-          urllib.request.urlopen(req)
-          print('Discord notified.')
-          " $status $webhook
-
+          $status = "${{ job.status }}"
+          $msg = if ($status -eq 'success') {
+            "Sovereign Gate Operational - Daily Hive Recon complete. All Vortex nodes executed successfully."
+          } else {
+            "Hive Alert - Swarm sequence had an issue. Check GitHub Actions logs."
+          }
+          $payload = @{ content = $msg } | ConvertTo-Json
+          Invoke-RestMethod -Uri $webhook -Method POST -Headers @{ 'Content-Type' = 'application/json' } -Body $payload
+          Write-Host "Discord notified."
