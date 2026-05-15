@@ -3,17 +3,21 @@ name: Digzopian Hive Recon
 on:
   schedule:
     - cron: '0 0 * * *' # Daily at midnight UTC
-  workflow_dispatch: # Allows manual trigger from GitHub UI or Discord via webhook if configured
+  workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
   swarm_recon:
     name: Hive Vortices Swarm Execution
-    runs-on: self-hosted # Targets your Lenovo Yoga 9 self-hosted runner
+    runs-on: self-hosted
     
     env:
       AZURE_SQL_CONN: ${{ secrets.AZURE_SQL_CONN }}
       NEON_DB_URL: ${{ secrets.NEON_DB_URL }}
       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
       - name: Checkout Hive Repository
@@ -25,38 +29,31 @@ jobs:
           python-version: '3.10'
           
       - name: Install dependencies
-        run: |
-          pip install requests psycopg2-binary pyodbc # Add any other dependencies your Binarology logic needs
+        run: pip install requests
           
       - name: Execute Vortex A (Recon Scraper)
-        shell: bash
         run: |
-          echo "Initiating Vortex A: Scraping public CVEs and bounty scopes..."
+          Write-Host "Initiating Vortex A: Scraping public CVEs and bounty scopes..."
           python scripts/vortex_scraper.py
           
       - name: Execute Vortex B (Pattern Analyst)
-        shell: bash
         run: |
-          echo "Initiating Vortex B: Applying Binarology logic to identify Go-ers..."
+          Write-Host "Initiating Vortex B: Applying Binarology logic to identify Go-ers..."
           python scripts/pattern_analyst.py
 
-      - name: Deploy Vortex C (Offensive Bastion Sandbox)
-        shell: bash
+      - name: Deploy Vortex C (Bastion Sandbox)
         run: |
-          echo "Initiating Vortex C: Generating The Cure..."
-          # docker run --rm -v ${{ github.workspace }}:/workspace kali_bastion python3 /workspace/scripts/sandbox_sim.py
+          Write-Host "Initiating Vortex C: Generating The Cure..."
+          python scripts/sandbox_sim.py
 
       - name: Notify Discord Bridge
         if: always()
-        shell: bash
         run: |
-          STATUS="${{ job.status }}"
-          if [ "$STATUS" = "success" ]; then
-            MSG="✅ **Sovereign Gate Operational**: Daily Hive Recon and Analysis Complete. Check your logs for Go-ers."
-          else
-            MSG="⚠️ **Hive Alert**: Swarm sequence failed or was interrupted. Check logs immediately."
-          fi
-          
-          curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"$MSG\"}" \
-          $DISCORD_WEBHOOK
+          $status = "${{ job.status }}"
+          if ($status -eq "success") {
+            $msg = "✅ **Sovereign Gate Operational**: Daily Hive Recon complete. Swarm cycles executed successfully."
+          } else {
+            $msg = "⚠️ **Hive Alert**: Swarm sequence encountered an issue. Check GitHub Actions logs for details."
+          }
+          $body = @{ content = $msg } | ConvertTo-Json
+          Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK -Method Post -Body $body -ContentType "application/json"
