@@ -48,12 +48,15 @@ jobs:
 
       - name: Notify Discord Bridge
         if: always()
+        continue-on-error: true
         run: |
           $status = "${{ job.status }}"
           if ($status -eq "success") {
-            $msg = "✅ **Sovereign Gate Operational**: Daily Hive Recon complete. Swarm cycles executed successfully."
+            $msg = "[SWARM OK] Digzopian Hive Recon complete. All Vortex nodes executed successfully."
           } else {
-            $msg = "⚠️ **Hive Alert**: Swarm sequence encountered an issue. Check GitHub Actions logs for details."
+            $msg = "[SWARM ALERT] Hive sequence encountered an issue. Check GitHub Actions logs."
           }
-          $body = @{ content = $msg } | ConvertTo-Json
-          Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK -Method Post -Body $body -ContentType "application/json"
+          $webhookUrl = "${{ secrets.DISCORD_WEBHOOK }}"
+          $body = "{`"content`": `"$msg`"}"
+          Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $body -ContentType "application/json"
+          Write-Host "Discord notification sent."
