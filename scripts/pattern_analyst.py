@@ -19,3 +19,10 @@ class PatternAnalyst:
         
         logger.info("Pattern analysis complete.")
         return results
+
+if __name__ == "__main__":
+    analyst = PatternAnalyst()
+    dummy_anomalies = ["anom_1", "anom_2", "anom_3"]
+    results = analyst.analyze_anomalies(dummy_anomalies)
+    logger.info(f"Analysis results: {results}")
+    print("VORTEX_B_OK")

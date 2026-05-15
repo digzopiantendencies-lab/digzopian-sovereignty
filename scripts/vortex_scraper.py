@@ -14,3 +14,9 @@ class VortexScraper:
         time.sleep(2)
         logger.info("Recon cycle complete. 3 anomalies detected.")
         return ["anom_1", "anom_2", "anom_3"]
+
+if __name__ == "__main__":
+    scraper = VortexScraper()
+    results = scraper.run_recon_cycle()
+    logger.info(f"Recon complete. Found: {results}")
+    print("VORTEX_A_OK")

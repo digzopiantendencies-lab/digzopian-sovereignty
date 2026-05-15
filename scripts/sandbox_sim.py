@@ -16,3 +16,13 @@ class SandboxSim:
                 # Stub for actual sandboxing (e.g. dynamic binary analysis, virtualized execution)
                 time.sleep(1.5)
         logger.info("Simulation cycles complete. No breaches detected in bastion.")
+
+if __name__ == "__main__":
+    sandbox = SandboxSim()
+    dummy_analysis = {
+        "anom_1": {"threat_level": "medium", "confidence": 0.85},
+        "anom_2": {"threat_level": "high", "confidence": 0.92},
+        "anom_3": {"threat_level": "low", "confidence": 0.60},
+    }
+    sandbox.simulate_threats(dummy_analysis)
+    print("VORTEX_C_OK")
