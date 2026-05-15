@@ -51,12 +51,15 @@ jobs:
         continue-on-error: true
         run: |
           $status = "${{ job.status }}"
-          if ($status -eq "success") {
-            $msg = "[SWARM OK] Digzopian Hive Recon complete. All Vortex nodes executed successfully."
-          } else {
-            $msg = "[SWARM ALERT] Hive sequence encountered an issue. Check GitHub Actions logs."
-          }
-          $webhookUrl = "${{ secrets.DISCORD_WEBHOOK }}"
-          $body = "{`"content`": `"$msg`"}"
-          Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $body -ContentType "application/json"
-          Write-Host "Discord notification sent."
+          $webhook = "${{ secrets.DISCORD_WEBHOOK }}"
+          python -c "
+          import urllib.request, json, sys
+          status = sys.argv[1]
+          webhook = sys.argv[2]
+          msg = '[SWARM OK] Digzopian Hive Recon complete.' if status == 'success' else '[SWARM ALERT] Hive sequence had an issue. Check GitHub Actions.'
+          data = json.dumps({'content': msg}).encode()
+          req = urllib.request.Request(webhook, data=data, headers={'Content-Type': 'application/json'})
+          urllib.request.urlopen(req)
+          print('Discord notified.')
+          " $status $webhook
+
