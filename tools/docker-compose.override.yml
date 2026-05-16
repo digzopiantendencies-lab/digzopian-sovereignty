@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  searxng:
+    environment:
+      - SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
+    volumes:
+      - ./tools/settings.yml:/etc/searxng/settings.yml:ro

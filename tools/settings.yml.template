@@ -1,0 +1,17 @@
+# Minimal SearXNG settings for local testing
+server:
+  base_url: http://localhost:8080
+  bind: 0.0.0.0:8080
+
+secret_key: 'change-me'
+
+# Simple engine settings for offline testing
+engines:
+  google:
+    engine: google
+    # disable real scraping for local tests
+    enabled: false
+
+# Other minimal defaults
+ui:
+  site_name: "SearXNG Local"
